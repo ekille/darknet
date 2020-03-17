@@ -236,14 +236,15 @@ image **load_alphabet()
     return alphabets;
 }
 
-void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes)
+void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, char *filename)
 {
     int i,j;
 
-    for(i = 0; i < num; ++i){
+    for(i = 0; i < num; ++i){   // for i detections/boxes
         char labelstr[4096] = {0};
+        char ericstr[4096] = {0};
         int class = -1;
-        for(j = 0; j < classes; ++j){
+        for(j = 0; j < classes; ++j){ // for j each of 80 classes
             if (dets[i].prob[j] > thresh){
                 if (class < 0) {
                     strcat(labelstr, names[j]);
@@ -252,7 +253,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
                     strcat(labelstr, ", ");
                     strcat(labelstr, names[j]);
                 }
-                printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);
+                sprintf(ericstr,"OUT %s %s %.0f%% ",filename, names[j], dets[i].prob[j]*100);
             }
         }
         if(class >= 0){
@@ -278,7 +279,10 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             rgb[1] = green;
             rgb[2] = blue;
             box b = dets[i].bbox;
-            //printf("%f %f %f %f\n", b.x, b.y, b.w, b.h);
+            char rectStr[50];
+            sprintf(rectStr, "%f %f %f %f\n", b.x, b.y, b.w, b.h);
+            strcat(ericstr, rectStr);
+            printf("%s", ericstr);
 
             int left  = (b.x-b.w/2.)*im.w;
             int right = (b.x+b.w/2.)*im.w;
